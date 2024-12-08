@@ -1,0 +1,70 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MNIST Digit Prediction</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 500px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            text-align: center; 
+        }
+        #preview { 
+            max-width: 280px; 
+            margin: 20px auto; 
+            border: 1px solid #ccc; 
+        }
+    </style>
+</head>
+<body>
+    <h1>MNIST Digit Predictor</h1>
+    <form id="uploadForm">
+        <input type="file" id="fileInput" accept="image/*">
+        <button type="submit">Predict</button>
+    </form>
+    <img id="preview" style="display:none;">
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('preview');
+            preview.src = URL.createObjectURL(file);
+            preview.style.display = 'block';
+        });
+
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const fileInput = document.getElementById('fileInput');
+            const resultDiv = document.getElementById('result');
+
+            if (fileInput.files.length === 0) {
+                alert('Please select an image');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.prediction !== undefined) {
+                    resultDiv.textContent = `Predicted Digit: ${data.prediction}`;
+                } else {
+                    resultDiv.textContent = 'Error in prediction';
+                }
+            })
+            .catch(error => {
+                resultDiv.textContent = 'Error: ' + error;
+            });
+        });
+    </script>
+</body>
+</html>
+    

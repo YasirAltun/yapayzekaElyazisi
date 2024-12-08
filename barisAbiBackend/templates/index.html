@@ -1,0 +1,72 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MNIST Digit Recognition</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        #imagePreview {
+            max-width: 300px;
+            max-height: 300px;
+            margin: 20px auto;
+            border: 2px dashed #ccc;
+        }
+        #predictionResult {
+            font-size: 24px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>MNIST Digit Predictor</h1>
+    <input type="file" id="imageUpload" accept="image/*">
+    <img id="imagePreview" style="display:none;">
+    <div id="predictionResult"></div>
+
+    <script>
+        const imageUpload = document.getElementById('imageUpload');
+        const imagePreview = document.getElementById('imagePreview');
+        const predictionResult = document.getElementById('predictionResult');
+
+        imageUpload.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = 'block';
+            };
+
+            reader.readAsDataURL(file);
+        });
+
+        imageUpload.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            const formData = new FormData();
+            formData.append('file', file);
+
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                predictionResult.textContent = `Predicted Digit: ${data.prediction}`;
+            })
+            .catch(error => {
+                predictionResult.textContent = 'Prediction Error';
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>
+    
